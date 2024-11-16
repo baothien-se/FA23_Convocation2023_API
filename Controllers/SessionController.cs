@@ -56,5 +56,29 @@ namespace FA23_Convocation2023_API.Controllers
             });
         }
 
+        [HttpPut("UpdateStatusSession/{sessionId}")] // Update status session
+        public async Task<IActionResult> UpdateStatusSessionAsync([FromRoute] int sessionId, [FromBody] int sessionNum)
+        {
+            var result = await _sessionService.UpdateSessionAsync(sessionId, sessionNum);
+            return Ok(new
+            {
+                status = StatusCodes.Status200OK,
+                message = "Update status session successfully!",
+                data = result
+            });
+        }
+
+        [HttpDelete("DeleteSession/{sessionId}")] // Delete session
+        public async Task<IActionResult> DeleteSessionAsync([FromRoute] int sessionId)
+        {
+            var result = await _sessionService.DeleteSessionAsync(sessionId);
+            return Ok(new
+            {
+                status = StatusCodes.Status200OK,
+                message = "Delete session successfully!",
+                data = result
+            });
+        }
+
     }
 }

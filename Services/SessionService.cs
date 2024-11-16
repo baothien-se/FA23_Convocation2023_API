@@ -41,5 +41,39 @@ namespace FA23_Convocation2023_API.Services
             }
             return listSession;
         }
+
+        public async Task<Session> UpdateSessionAsync(int sessionId, int sessionNum) {
+            try {
+                var existingSession = await _context.Sessions.FirstOrDefaultAsync(s => s.SessionId == sessionId);
+                if (existingSession == null)
+                {
+                    return null;
+                }
+                existingSession.Session1 = sessionNum;
+                _context.Sessions.Update(existingSession);
+                await _context.SaveChangesAsync();
+                return existingSession;
+            } catch (Exception ex) {
+                Console.WriteLine(ex.Message);
+                return null;
+            }
+        }
+
+        public async Task<bool> DeleteSessionAsync(int sessionId)
+        {
+            try {
+                var existingSession = await _context.Sessions.FirstOrDefaultAsync(s => s.SessionId == sessionId);
+                if (existingSession == null)
+                {
+                    return false;
+                }
+                _context.Sessions.Remove(existingSession);
+                await _context.SaveChangesAsync();
+                return true;
+            } catch (Exception ex) {
+                Console.WriteLine(ex.Message);
+                return false;
+            }
+        }
     }
 }

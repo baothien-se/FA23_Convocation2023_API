@@ -69,6 +69,19 @@ namespace FA23_Convocation2023_API.Services
                     errorList.Add($"Session {bItem.SessionNum} not found!");
                     continue;
                 }
+                var checkInExsit = await _context.CheckIns.AnyAsync(c => c.Hall.HallName == bItem.HallName && c.Session.Session1 == bItem.SessionNum);
+                if (!checkInExsit)
+                {
+                    var checkin = new CheckIn
+                    {
+                        HallId = hall.HallId,
+                        SessionId = session.SessionId,
+                        Status = null,
+                        Hall = hall,
+                        Session = session
+                    };
+                    await _context.CheckIns.AddAsync(checkin);
+                }
 
                 var bachelor = new Bachelor
                 {

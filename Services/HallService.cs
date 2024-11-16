@@ -40,6 +40,37 @@ namespace FA23_Convocation2023_API.Services
             }
             return listHall;
         }
+    
+        public async Task<bool> UpdateHallAsync(int hallId, string hallName) {
+            try {
+                var existingHall = await _context.Halls.FirstOrDefaultAsync(h => h.HallId == hallId);
+                if (existingHall == null) {
+                    return false;
+                }
+                existingHall.HallName = hallName;
+                _context.Halls.Update(existingHall);
+                await _context.SaveChangesAsync();
+                return true;
+            } catch (Exception ex) {
+                Console.WriteLine(ex.Message);
+                return false;
+            }
+        }
+
+        public async Task<bool> DeleteHallAsync(int hallId) {
+            try {
+                var existingHall = await _context.Halls.FirstOrDefaultAsync(h => h.HallId == hallId);
+                if (existingHall == null) {
+                    return false;
+                }
+                _context.Halls.Remove(existingHall);
+                await _context.SaveChangesAsync();
+                return true;
+            } catch (Exception ex) {
+                Console.WriteLine(ex.Message);
+                return false;
+            }
+        }
     }
 
 }

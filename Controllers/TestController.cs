@@ -25,5 +25,17 @@ namespace FA23_Convocation2023_API.Controllers
             messageHub.Clients.All.SendAsync("SendMessage", "huhu", test);
             return "Test sent successfully to all users!";
         }
+
+        [HttpGet]
+        [Route("Connect")]
+        public IActionResult Connect()
+        {
+            return Ok(new{
+                status = StatusCodes.Status200OK,
+                message = "Connect API thành công!",
+                data = "OK"
+            }
+            );
+        }
     }
 }
