@@ -117,8 +117,7 @@ namespace FA23_Convocation2023_API.Models
                 entity.ToTable("Hall");
 
                 entity.Property(e => e.HallName)
-                    .HasMaxLength(100)
-                    .IsUnicode(false);
+                    .HasMaxLength(100);
             });
 
             modelBuilder.Entity<Role>(entity =>
@@ -129,8 +128,7 @@ namespace FA23_Convocation2023_API.Models
                     .HasColumnName("RoleID");
 
                 entity.Property(e => e.RoleName)
-                    .HasMaxLength(10)
-                    .IsUnicode(false);
+                    .HasMaxLength(10);
             });
 
             modelBuilder.Entity<Session>(entity =>
@@ -156,8 +154,7 @@ namespace FA23_Convocation2023_API.Models
                 entity.Property(e => e.FullName).HasMaxLength(100);
 
                 entity.Property(e => e.Password)
-                    .HasMaxLength(20)
-                    .IsUnicode(false);
+                    .HasMaxLength(20);
 
                 entity.Property(e => e.RoleId)
                     .HasMaxLength(2)
