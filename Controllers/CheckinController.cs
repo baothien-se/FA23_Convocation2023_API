@@ -23,8 +23,15 @@ namespace FA23_Convocation2023_API.Controllers
         [Authorize(Roles = "MN, CK")]
         public async Task<IActionResult> UpdateCheckinAsync(CheckinRequest checkinRequest)
         {
-            var result = await _checkInService.UpdateCheckinAsync(checkinRequest);
-            return Ok(result);
+            try
+            {
+                var result = await _checkInService.UpdateCheckinAsync(checkinRequest);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpGet("GetAll")]

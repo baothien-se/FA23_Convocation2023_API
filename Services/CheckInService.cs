@@ -12,20 +12,36 @@ namespace FA23_Convocation2023_API.Services
         //update checkin status
         public async Task<string> UpdateCheckinAsync(CheckinRequest checkinRequest)
         {
-            var bachelorDuplicate = await _context.Bachelors.Select(b => b.StudentCode == checkinRequest.StudentCode).ToListAsync();
+            // Kiểm tra xem có nhiều bản ghi trùng lặp hay không
+            var bachelorDuplicate = await _context.Bachelors
+                .Where(b => b.StudentCode == checkinRequest.StudentCode)
+                .ToListAsync();
+
             if (bachelorDuplicate.Count > 1)
             {
-                var bachelorDuplicateLastCreate = await _context.Bachelors.FirstOrDefaultAsync(b => b.StudentCode == checkinRequest.StudentCode && b.HallId == null);
-                //delete bachelorDuplicateLastCreate
-                _context.Bachelors.Remove(bachelorDuplicateLastCreate);
+                // Tìm bản ghi trùng lặp mà có HallId là null
+                var bachelorDuplicateLastCreate = await _context.Bachelors
+                    .FirstOrDefaultAsync(b => b.StudentCode == checkinRequest.StudentCode && b.HallId == null);
+
+                // Chỉ xóa nếu tìm thấy bản ghi trùng lặp
+                if (bachelorDuplicateLastCreate != null)
+                {
+                    _context.Bachelors.Remove(bachelorDuplicateLastCreate);
+                }
             }
-            var bachelor = await _context.Bachelors.FirstOrDefaultAsync(b => b.StudentCode == checkinRequest.StudentCode);
+
+            var bachelor = await _context.Bachelors
+                .FirstOrDefaultAsync(b => b.StudentCode == checkinRequest.StudentCode);
+
             if (bachelor != null && bachelor.StatusBaChelor == "Current")
             {
-                return "Bachelor is being displayed in led, cannot be updated at this time";
+                throw new Exception("Bachelor đang được chiếu trên màn hình, không thể cập nhật status checkin ngay lúc này");
             }
-            var statusCheckin = await _context.CheckIns.FirstOrDefaultAsync(c => c.HallId == bachelor.HallId && c.SessionId == bachelor.SessionId);
-            if (statusCheckin.Status == true)
+
+            var statusCheckin = await _context.CheckIns
+                .FirstOrDefaultAsync(c => c.HallId == bachelor.HallId && c.SessionId == bachelor.SessionId);
+
+            if (statusCheckin?.Status == true)
             {
                 bachelor.TimeCheckIn = DateTime.Now;
                 bachelor.CheckIn = checkinRequest.Status;
@@ -37,15 +53,18 @@ namespace FA23_Convocation2023_API.Services
                 {
                     bachelor.Status = false;
                 }
+
                 _context.Bachelors.Update(bachelor);
                 await _context.SaveChangesAsync();
             }
             else
             {
-                return "Cannot checkin !";
+                throw new Exception("Cập nhật thất bại, không thể checkin!");
             }
-            return "Checkin success";
+
+            return "Checkin thành công!";
         }
+
         //get all checkin
         public async Task<List<CheckIn>> GetAllCheckinAsync()
         {
@@ -67,9 +86,23 @@ namespace FA23_Convocation2023_API.Services
         }
 
         //get all status checkin
-        public async Task<List<CheckIn>> GetAllStatusCheckinAsync()
+        public async Task<List<CheckInDTO>> GetAllStatusCheckinAsync()
         {
-            return await _context.CheckIns.ToListAsync();
+            var checkins = await _context.CheckIns.ToListAsync();
+            var result = new List<CheckInDTO>();
+            foreach (var check in checkins)
+            {
+                var hall = await _context.Halls.FirstOrDefaultAsync(h => h.HallId == check.HallId);
+                var session = await _context.Sessions.FirstOrDefaultAsync(s => s.SessionId == check.SessionId);
+                result.Add(new CheckInDTO
+                {
+                    CheckinId = check.CheckinId,
+                    HallName = hall.HallName,
+                    SessionNum = session.Session1,
+                    Status = check.Status
+                });
+            }
+            return result;
         }
 
         //get status checkin
