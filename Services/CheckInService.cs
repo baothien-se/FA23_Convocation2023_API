@@ -156,7 +156,7 @@ namespace FA23_Convocation2023_API.Services
             {
                 var hall = await _context.Halls.FirstOrDefaultAsync(h => h.HallId == c.HallId);
                 var session = await _context.Sessions.FirstOrDefaultAsync(s => s.SessionId == c.SessionId);
-                var listBachelor = await _context.Bachelors.Where(b => b.HallId == c.HallId && b.SessionId == c.SessionId).ToListAsync();
+                var listBachelor = await _context.Bachelors.Where(b => b.HallId == c.HallId && b.SessionId == c.SessionId && b.CheckIn == false).ToListAsync();
                 foreach (var b in listBachelor)
                 {
                     result.Add(new ListBachelor
