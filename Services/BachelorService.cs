@@ -13,7 +13,7 @@ namespace FA23_Convocation2023_API.Services
         public async Task<PagedResult<BachelorDTO>> SearchBachelorsAsync(string keySearch, int pageIndex, int pageSize)
         {
 
-            var query = _context.Bachelors.Include(b=>b.Hall).Include(b=>b.Session)
+           var query = _context.Bachelors.Include(b=>b.Hall).Include(b=>b.Session)
           .Where(b => string.IsNullOrEmpty(keySearch) || b.FullName.Contains(keySearch) || b.StudentCode.Contains(keySearch))
           .OrderBy(b => b.Id)
           .Select(b => new BachelorDTO

@@ -39,7 +39,12 @@ namespace FA23_Convocation2023_API.Controllers
             }
 
             var result = await _bachService.SearchBachelorsAsync(keySearch, pageIndex, pageSize);
-            return Ok(result);
+            return Ok(new
+            {
+                status = StatusCodes.Status200OK,
+                message = "Get bachelors successfully!",
+                data = result
+            });
         }
 
         [HttpGet("GetAll")]
