@@ -22,7 +22,7 @@ namespace FA23_Convocation2023_API.Services
             var bachelor = await _context.Bachelors.FirstOrDefaultAsync(b => b.StudentCode == checkinRequest.StudentCode);
             if (bachelor != null && bachelor.StatusBaChelor == "Current")
             {
-                return "Bachelor is being displayed in led, cannot be updated at this time";
+                return "Bachelor is being displayed in led, cannot be updated at this time";   
             }
             var statusCheckin = await _context.CheckIns.FirstOrDefaultAsync(c => c.HallId == bachelor.HallId && c.SessionId == bachelor.SessionId);
             if (statusCheckin.Status == true)
@@ -39,8 +39,7 @@ namespace FA23_Convocation2023_API.Services
                 }
                 _context.Bachelors.Update(bachelor);
                 await _context.SaveChangesAsync();
-            }
-            else
+            } else
             {
                 return "Cannot checkin !";
             }
@@ -67,9 +66,23 @@ namespace FA23_Convocation2023_API.Services
         }
 
         //get all status checkin
-        public async Task<List<CheckIn>> GetAllStatusCheckinAsync()
+        public async Task<List<CheckInDTO>> GetAllStatusCheckinAsync()
         {
-            return await _context.CheckIns.ToListAsync();
+            var checkins = await _context.CheckIns.ToListAsync();
+            var result = new List<CheckInDTO>();
+            foreach (var check in checkins)
+            {
+                var hall = await _context.Halls.FirstOrDefaultAsync(h => h.HallId == check.HallId);
+                var session = await _context.Sessions.FirstOrDefaultAsync(s => s.SessionId == check.SessionId);
+                result.Add(new CheckInDTO
+                {
+                    CheckinId = check.CheckinId,
+                    HallName = hall.HallName,
+                    SessionNum = session.Session1,
+                    Status = check.Status
+                });
+            }
+            return result;
         }
 
         //get status checkin
@@ -136,7 +149,7 @@ namespace FA23_Convocation2023_API.Services
             var checkInExsit = _context.CheckIns.Any(c => c.HallId == hallId && c.SessionId == sessionId);
             if (checkInExsit)
             {
-                return null;
+                   return null;
             }
             var checkin = new CheckIn
             {
