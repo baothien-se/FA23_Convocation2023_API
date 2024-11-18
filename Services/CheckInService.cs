@@ -79,9 +79,23 @@ namespace FA23_Convocation2023_API.Services
         }
 
         //get all status checkin
-        public async Task<List<CheckIn>> GetAllStatusCheckinAsync()
+        public async Task<List<CheckInDTO>> GetAllStatusCheckinAsync()
         {
-            return await _context.CheckIns.ToListAsync();
+            var checkins = await _context.CheckIns.ToListAsync();
+            var result = new List<CheckInDTO>();
+            foreach (var check in checkins)
+            {
+                var hall = await _context.Halls.FirstOrDefaultAsync(h => h.HallId == check.HallId);
+                var session = await _context.Sessions.FirstOrDefaultAsync(s => s.SessionId == check.SessionId);
+                result.Add(new CheckInDTO
+                {
+                    CheckinId = check.CheckinId,
+                    HallName = hall.HallName,
+                    SessionNum = session.Session1,
+                    Status = check.Status
+                });
+            }
+            return result;
         }
 
         //get status checkin
