@@ -45,7 +45,14 @@ namespace FA23_Convocation2023_API.Services
             {
                 bachelor.TimeCheckIn = DateTime.Now;
                 bachelor.CheckIn = checkinRequest.Status;
-                bachelor.Status = checkinRequest.Status;
+                if (bachelor.CheckIn == true)
+                {
+                    bachelor.Status = true;
+                }
+                else
+                {
+                    bachelor.Status = false;
+                }
 
                 _context.Bachelors.Update(bachelor);
                 await _context.SaveChangesAsync();
