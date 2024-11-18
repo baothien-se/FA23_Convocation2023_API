@@ -22,7 +22,7 @@ namespace FA23_Convocation2023_API.Services
             var bachelor = await _context.Bachelors.FirstOrDefaultAsync(b => b.StudentCode == checkinRequest.StudentCode);
             if (bachelor != null && bachelor.StatusBaChelor == "Current")
             {
-                return "Bachelor is being displayed in led, cannot be updated at this time";   
+                return "Bachelor is being displayed in led, cannot be updated at this time";
             }
             var statusCheckin = await _context.CheckIns.FirstOrDefaultAsync(c => c.HallId == bachelor.HallId && c.SessionId == bachelor.SessionId);
             if (statusCheckin.Status == true)
@@ -39,16 +39,17 @@ namespace FA23_Convocation2023_API.Services
                 }
                 _context.Bachelors.Update(bachelor);
                 await _context.SaveChangesAsync();
-            } else
+            }
+            else
             {
                 return "Cannot checkin !";
             }
             return "Checkin success";
         }
         //get all checkin
-        public async Task<List<Bachelor>> GetAllCheckinAsync()
+        public async Task<List<CheckIn>> GetAllCheckinAsync()
         {
-            return await _context.Bachelors.ToListAsync();
+            return await _context.CheckIns.ToListAsync();
         }
 
         //uncheck all checkin
@@ -135,7 +136,7 @@ namespace FA23_Convocation2023_API.Services
             var checkInExsit = _context.CheckIns.Any(c => c.HallId == hallId && c.SessionId == sessionId);
             if (checkInExsit)
             {
-                   return null;
+                return null;
             }
             var checkin = new CheckIn
             {

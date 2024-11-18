@@ -39,21 +39,28 @@ namespace FA23_Convocation2023_API.Services
             return listBachelor;
         }
 
-        public async Task<object> AddBechelorAsync([FromBody] List<BachelorDTO> bachelorRequest)
+        public async Task<object> AddBachelorAsync([FromBody] List<BachelorDTO> bachelorRequest)
         {
             List<string> errorList = new List<string>();
 
+            // Lấy danh sách mã sinh viên từ yêu cầu
             var studentCodes = bachelorRequest.Select(b => b.StudentCode).ToList();
+            // Lấy danh sách sinh viên đã tồn tại
             var existingStudents = await _context.Bachelors
                 .Where(b => studentCodes.Contains(b.StudentCode))
                 .Select(b => b.StudentCode)
                 .ToListAsync();
-            
+
+            // Tạo bộ nhớ đệm cho các CheckIn đã tồn tại dựa trên HallId và SessionId
+            var existingCheckIns = await _context.CheckIns
+                .Select(c => new { c.HallId, c.SessionId })
+                .ToDictionaryAsync(c => (c.HallId, c.SessionId), c => true);
 
             foreach (var bItem in bachelorRequest)
             {
                 var hall = await _context.Halls.FirstOrDefaultAsync(h => h.HallName == bItem.HallName);
                 var session = await _context.Sessions.FirstOrDefaultAsync(s => s.Session1 == bItem.SessionNum);
+
                 if (existingStudents.Contains(bItem.StudentCode))
                 {
                     errorList.Add($"Bachelor {bItem.StudentCode} is existed!");
@@ -69,8 +76,9 @@ namespace FA23_Convocation2023_API.Services
                     errorList.Add($"Session {bItem.SessionNum} not found!");
                     continue;
                 }
-                var checkInExsit = await _context.CheckIns.FirstOrDefaultAsync(c => c.HallId == hall.HallId && c.SessionId == session.SessionId);
-                if (checkInExsit == null)
+
+                // Kiểm tra xem CheckIn có tồn tại trong bộ nhớ đệm không
+                if (!existingCheckIns.ContainsKey((hall.HallId, session.SessionId)))
                 {
                     var checkin = new CheckIn
                     {
@@ -81,6 +89,9 @@ namespace FA23_Convocation2023_API.Services
                         Session = session
                     };
                     await _context.CheckIns.AddAsync(checkin);
+
+                    // Thêm CheckIn mới vào bộ nhớ đệm
+                    existingCheckIns[(hall.HallId, session.SessionId)] = true;
                 }
 
                 var bachelor = new Bachelor
@@ -109,6 +120,7 @@ namespace FA23_Convocation2023_API.Services
                 ErrorMessages = errorList
             };
         }
+
         //update UpdateBachelorAsync
         public async Task<Bachelor?> UpdateBachelorAsync(BachelorDTO bachelorRequest)
         {
@@ -136,7 +148,7 @@ namespace FA23_Convocation2023_API.Services
         }
 
         //update list bachelor by hallname and sessionnum
-        public async Task<object> UpdateListBachelorAsync( List<ListBachelor> bachelorRequest, int hallId, int sessionNum)
+        public async Task<object> UpdateListBachelorAsync(List<ListBachelor> bachelorRequest, int hallId, int sessionNum)
         {
             var listBachelor = await _context.Bachelors.Where(b => b.HallId == hallId && b.SessionId == sessionNum).ToListAsync();
             List<string> errorList = new List<string>();
@@ -209,6 +221,6 @@ namespace FA23_Convocation2023_API.Services
                 .ToListAsync();
             return result;
         }
-        
+
     }
 }

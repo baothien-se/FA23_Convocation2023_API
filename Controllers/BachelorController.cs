@@ -15,7 +15,7 @@ namespace FA23_Convocation2023_API.Controllers
     [ApiController]
     public class BachelorController : ControllerBase
     {
-        
+
         private readonly BachelorService _bachService;
         private readonly HallService _hallService;
         private readonly SessionService _sessionService;
@@ -47,7 +47,7 @@ namespace FA23_Convocation2023_API.Controllers
         [HttpPost("Add")]
         public async Task<IActionResult> AddBechelorAsync([FromBody] List<BachelorDTO> bachelorRequest)
         {
-            var result = await _bachService.AddBechelorAsync(bachelorRequest);
+            var result = await _bachService.AddBachelorAsync(bachelorRequest);
             return Ok(new
             {
                 status = StatusCodes.Status200OK,
@@ -80,7 +80,7 @@ namespace FA23_Convocation2023_API.Controllers
         }
         //update list bachelor by hallname and sessionnum
         [HttpPut("UpdateListBachelor/{hallId}/{sessionId}")]
-        public async Task<IActionResult> UpdateListBachelorAsync([FromBody] List<ListBachelor> bachelorRequest,[FromRoute] int hallId, [FromRoute] int sessionId)
+        public async Task<IActionResult> UpdateListBachelorAsync([FromBody] List<ListBachelor> bachelorRequest, [FromRoute] int hallId, [FromRoute] int sessionId)
         {
             var result = await _bachService.UpdateListBachelorAsync(bachelorRequest, hallId, sessionId);
             return Ok(new
