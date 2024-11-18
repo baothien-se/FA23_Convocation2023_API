@@ -1,5 +1,6 @@
 ﻿using FA23_Convocation2023_API.DTO;
 using FA23_Convocation2023_API.Models;
+using FA23_Convocation2023_API.Utils;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,7 +10,65 @@ namespace FA23_Convocation2023_API.Services
     {
         private readonly Convo24Context _context = new Convo24Context();
 
-        public async Task<List<ListBachelor>> GetAllBachelorAsync()
+        public async Task<PagedResult<BachelorDTO>> SearchBachelorsAsync(string keySearch, int pageIndex, int pageSize)
+        {
+
+            var query = _context.Bachelors.Include(b=>b.Hall).Include(b=>b.Session)
+          .Where(b => string.IsNullOrEmpty(keySearch) || b.FullName.Contains(keySearch) || b.StudentCode.Contains(keySearch))
+          .OrderBy(b => b.Id)
+          .Select(b => new BachelorDTO
+          {
+              Image = b.Image,
+              FullName = b.FullName,
+              Major = b.Major,
+              StudentCode = b.StudentCode,
+              Mail = b.Mail,
+              HallName = b.Hall.HallName, 
+              SessionNum = (int)b.Session.Session1, 
+              Chair = b.Chair,
+              ChairParent = b.ChairParent
+          });
+
+            var totalItems = await query.CountAsync();
+            var items = await query.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToListAsync();
+
+            var paginatedResult = new PaginatedList<BachelorDTO>(items, totalItems, pageIndex, pageSize);
+            return new PagedResult<BachelorDTO>
+            {
+                Items = paginatedResult.Items,
+                TotalItems = paginatedResult.TotalCount,
+                TotalPages = paginatedResult.TotalPages,
+                CurrentPage = paginatedResult.CurrentPage,
+                PageSize = paginatedResult.PageSize,
+                HasPreviousPage = paginatedResult.HasPreviousPage,
+                HasNextPage = paginatedResult.HasNextPage
+            };
+
+
+        }
+
+        public  string GetHallName(int hallId)
+        {
+            var hallExist =  _context.Halls.FirstOrDefault(h => h.HallId == hallId);
+            if (hallExist == null)
+            {
+                throw new Exception("HallId not found!");
+            }
+            return hallExist.HallName;
+        }
+        public  int GetSession(int sessionId)
+        {
+            var session =  _context.Sessions.FirstOrDefault(s => s.SessionId == sessionId);
+            if(session == null)
+            {
+                throw new Exception("SessionId not found!");
+
+            }
+            return (int)session.Session1;
+        }
+
+
+            public async Task<List<ListBachelor>> GetAllBachelorAsync()
         {
             var result = await _context.Bachelors.ToListAsync();
             var listBachelor = new List<ListBachelor>();

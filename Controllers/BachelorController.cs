@@ -27,6 +27,21 @@ namespace FA23_Convocation2023_API.Controllers
             _sessionService = sessionService;
         }
 
+        [HttpGet("search")]
+        public async Task<ActionResult<PagedResult<BachelorDTO>>> SearchBachelors(
+           [FromQuery] string keySearch,
+           [FromQuery] int pageIndex = 1,
+           [FromQuery] int pageSize = 10)
+        {
+            if (pageIndex < 1 || pageSize < 1)
+            {
+                return BadRequest("Page index and page size must be greater than zero.");
+            }
+
+            var result = await _bachService.SearchBachelorsAsync(keySearch, pageIndex, pageSize);
+            return Ok(result);
+        }
+
         [HttpGet("GetAll")]
         public async Task<IActionResult> GetAllBachelorAsync()
         {
@@ -43,6 +58,8 @@ namespace FA23_Convocation2023_API.Controllers
                 data = result
             });
         }
+
+
 
         [HttpPost("Add")]
         public async Task<IActionResult> AddBechelorAsync([FromBody] List<BachelorDTO> bachelorRequest)
