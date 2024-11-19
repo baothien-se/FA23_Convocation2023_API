@@ -76,13 +76,24 @@ namespace FA23_Convocation2023_API.Controllers
         [Authorize(Roles = "MN")]
         public async Task<IActionResult> UpdateStatusCheckinAsync(StatusCheckinRequest request)
         {
-            var result = await _checkInService.UpdateStatusCheckinAsync(request.HallId, request.SessionId, request.Status);
-            return Ok(new
+            try
             {
-                status = StatusCodes.Status200OK,
-                message = "Update status checkin successfully!",
-                data = result
-            });
+                var result = await _checkInService.UpdateStatusCheckinAsync(request.CheckinId, request.Status);
+                return Ok(new
+                {
+                    status = StatusCodes.Status200OK,
+                    message = "Update status checkin successfully!",
+                    data = result
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    status = StatusCodes.Status400BadRequest,
+                    message = ex.Message
+                });
+            }
         }
 
         [HttpGet("GetCountCheckin")]
